@@ -71,6 +71,34 @@ if vim.g.vscode then
   --     vscode.action("editor.action.addSelectionToNextFindMatch")
   --   end)
   -- end)
+  -- [[ Install `lazy.nvim` plugin manager ]]
+  --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
+  local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
+  if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
+    local out = vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
+    if vim.v.shell_error ~= 0 then
+      error('Error cloning lazy.nvim:\n' .. out)
+    end
+  end ---@diagnostic disable-next-line: undefined-field
+  vim.opt.rtp:prepend(lazypath)
+  require('lazy').setup {
+    {
+      'folke/flash.nvim',
+      event = 'VeryLazy',
+      vscode = true,
+      ---@type Flash.Config
+      opts = {},
+      -- stylua: ignore
+      keys = {
+        { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+        { "S", mode = { "n", "o", "x" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+        -- { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
+        -- { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+        -- { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+      },
+    },
+  }
 else
   vim.opt.wrap = false
   -- Minimal number of screen lines to keep above and below the cursor.
